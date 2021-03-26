@@ -144,6 +144,8 @@ function ia(myBoard) {
             return [0,2];
         }
     }
+
+    //Check for player's chances
     let rawDanger = [];
     let colDanger = [];
     
@@ -166,6 +168,7 @@ function ia(myBoard) {
         colDanger.push(col);
     }
 
+    //Check for computer's chances
     let myRaws = [];
     let myCols = [];
     for(let x = 0; x < myBoard.length; x++) {
@@ -187,6 +190,7 @@ function ia(myBoard) {
         myCols.push(col);
     }
 
+    //Manage computer ATTACKS
     let winX = myRaws.indexOf(2);
     var xNb;
     if(winX !== -1) {
@@ -196,7 +200,6 @@ function ia(myBoard) {
                 return [xNb,i];
             }
         }
-        xNb = -1;
     }
 
     let winY = myCols.indexOf(2);
@@ -208,9 +211,9 @@ function ia(myBoard) {
                 return [i,yNb];
             }
         }
-        yNb = -1;
     }
 
+    //Manage computer DEFENDS
     let looseX = rawDanger.indexOf(2);
     if(looseX !== -1) {
         xNb = looseX;
@@ -229,6 +232,8 @@ function ia(myBoard) {
             }
         }
     }
+
+    //If no-one is winning => randomPlay !!
     let xRand = Math.round(Math.random() * 2);
     let yRand = Math.round(Math.random() * 2);
     return [xRand, yRand];
