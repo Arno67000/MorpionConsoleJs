@@ -109,7 +109,7 @@ function game() {
     }
     console.log('Your score : '+playerCount);
     console.log("Computer's score : "+computerCount);
-    if (readline.keyInYN('Do you want this module?')) {
+    if (readline.keyInYN('Play again ?')) {
         // 'Y' key was pressed.
         board = [
             [' ',' ',' '],
