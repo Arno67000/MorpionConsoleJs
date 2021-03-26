@@ -1,0 +1,15 @@
+{
+  "name": "morpionjs",
+  "version": "1.0.0",
+  "description": "Morpion game consoleVersion JavaScript",
+  "main": "game.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node game.js"
+  },
+  "author": "Arno67000",
+  "license": "ISC",
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
+}
