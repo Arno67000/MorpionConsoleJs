@@ -131,6 +131,8 @@ function game() {
 game();
 
 function ia(myBoard) {
+    
+    //Strategic opening
     if(myBoard[1][1] === ' ') {
         return [1,1];
     }
