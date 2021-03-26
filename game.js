@@ -19,6 +19,8 @@ const xy = {
 }
 const player = "X";
 const computer = "O";
+let playerCount = 0;
+let computerCount = 0;
 let win = false;
 let turn = 0;
 
@@ -97,6 +99,16 @@ function game() {
     console.log(board[1]);
     console.log(board[2]);
     console.log(win,' won the game !!');
+    switch(win){
+        case 'You':
+            playerCount++;
+            break
+        case 'Computer':
+            computerCount++;
+            break
+    }
+    console.log('Your score : '+playerCount);
+    console.log("Computer's score : "+computerCount);
     if (readline.keyInYN('Do you want this module?')) {
         // 'Y' key was pressed.
         board = [
@@ -109,8 +121,9 @@ function game() {
         game();
       } else {
         // Another key was pressed.
-        console.log('Bye');
-        console.clear();
+        console.log('See you soon ! Bye :-)');
+        playerCount = 0;
+        computerCount = 0;
       }
     
 };
