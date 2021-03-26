@@ -178,13 +178,13 @@ function ia(myBoard) {
         myRaws.push(raw);
     };
     for(let y = 0; y < myBoard.length; y++) {
-        for(let x = 0; x < myBoard.length; x++) {
-            let col = 0;
+        let col = 0;
+        for(let x = 0; x < myBoard.length; x++) {           
             if(myBoard[x][y] === computer) {
                 col++;
             }
-            myCols.push(col);
         }
+        myCols.push(col);
     }
 
     let winX = myRaws.indexOf(2);
