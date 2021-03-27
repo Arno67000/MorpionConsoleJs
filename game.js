@@ -1,28 +1,12 @@
 const readline = require('readline-sync');
+const Game = require('./model/Game.js');
 
-let board = [
-    [' ',' ',' '],
-    [' ',' ',' '],
-    [' ',' ',' '],
-];
+let alertInput = false;
 
-const xy = {
-    1: '20',
-    2: '21',
-    3: '22',
-    4: '10',
-    5: '11',
-    6: '12',
-    7: '00',
-    8: '01',
-    9: '02'
-}
-const player = "X";
-const computer = "O";
-let playerCount = 0;
-let computerCount = 0;
-let win = false;
-let turn = 0;
+let scoreBoard = {
+    playerCount : 0,
+    computerCount : 0
+};
 
 function render(myBoard) {
     console.clear();
@@ -31,212 +15,60 @@ function render(myBoard) {
     });
 };
 
-function gameOver(myBoard, currentPlayer) {
-    for(let line of myBoard) {
-        if(
-            line[0] === line[1] && 
-            line[1] === line[2] && 
-            line[1] !== ' ' 
-        ) {
-            return currentPlayer;
-        };
-    };
-
-    for(let i = 0; i < myBoard.length; i++) {
-        if(
-            myBoard[0][i] === myBoard[1][i] && 
-            myBoard[1][i] === myBoard[2][i] && 
-            myBoard[1][i] !== ' '
-        ) {
-            return currentPlayer;
-        }
-    };
-
-    if(
-        (
-            (myBoard[0][0] === myBoard[1][1] && myBoard[1][1] === myBoard[2][2]) ||
-            (myBoard[1][1] === myBoard[0][2] && myBoard[1][1] === myBoard[2][0])
-        ) &&
-        myBoard[1][1] !== ' '
-    ) {
-        return currentPlayer;
-    };
-
-    if(turn === 8) {
-        return 'NoOne';
-    };
-    return false;
-}
-
-function game() {
-    while(win === false) {
-        if(turn % 2 === 0) {
-            render(board);
+function newGame() {
+    const game = new Game();
+    while(game.win === false) {
+        if(game.turn % 2 === 0) {
+            render(game.board);
+            if(alertInput) {
+                console.log('Play on NUMPAD : from 1 to 9 !! Try again.');
+            };
             console.log('Your numPad represents the board.');
             var input = readline.question('Choose the key (from 1 to 9) you wanna play  :');
-            let coord = xy[input].split('');
-            if(board[coord[0]][coord[1]] === player || board[coord[0]][coord[1]] === computer) {
-                console.log("Already played !! Pick another key");
+            if(parseInt(input) > 0 && parseInt(input) < 10) {
+                alertInput = false;
+                var {x , y} = game.coordinates[parseInt(input)];
+                if(game.board[x][y] !== ' ') {
+                    console.log("Already played !! Pick another key");
+                } else {
+                    game.board[x][y] = game.player;
+                    game.win = game.testEndGameConditions('You');
+                    game.incrTurn();
+                };
             } else {
-                board[coord[0]][coord[1]] = player;
-                win = gameOver(board, 'You');
-                turn++;
-            }
-                      
+                alertInput = true;
+            };                  
         } else {
-            let choice = ia(board);
-            let x = choice[0];
-            let y = choice[1];
-            if(board[x][y] !== player && board[x][y] !== computer) {
-                board[x][y] = computer;
-                win = gameOver(board, 'Computer');
-                turn++;
+            let {x, y} = game.ia();
+            if(game.board[x][y] === ' ') {
+                game.board[x][y] = game.computer;
+                game.win = game.testEndGameConditions('Computer');
+                game.incrTurn();
             }
         }
 
     }; 
-    console.log(board[0]);
-    console.log(board[1]);
-    console.log(board[2]);
-    console.log(win,' won the game !!');
-    switch(win){
+    render(game.board);
+    console.log(game.win,' won this game !!');
+    switch(game.win){
         case 'You':
-            playerCount++;
+            scoreBoard.playerCount++;
             break
         case 'Computer':
-            computerCount++;
+            scoreBoard.computerCount++;
             break
     }
-    console.log('Your score : '+playerCount);
-    console.log("Computer's score : "+computerCount);
+    console.log('Your score : '+scoreBoard.playerCount);
+    console.log("Computer's score : "+scoreBoard.computerCount);
     if (readline.keyInYN('Play again ?')) {
         // 'Y' key was pressed.
-        board = [
-            [' ',' ',' '],
-            [' ',' ',' '],
-            [' ',' ',' '],
-        ];
-        win = false;
-        turn = 0;
-        game();
+        newGame();
       } else {
         // Another key was pressed.
         console.log('See you soon ! Bye :-)');
-        playerCount = 0;
-        computerCount = 0;
       }
     
 };
 
-game();
+newGame();
 
-function ia(myBoard) {
-    
-    //Strategic opening
-    if(myBoard[1][1] === ' ') {
-        return [1,1];
-    }
-    if(myBoard[1][1] === player && myBoard[2][2] === ' ') {
-        return [2,2];
-    }
-    if(myBoard[1][1] === player && myBoard[2][2] === computer) {
-        if(myBoard[0][2] === player && myBoard[2][0] === ' ') {
-            return [2,0];
-        }else if(myBoard[2][0] === player && myBoard[0][2] === ' ') {
-            return [0,2];
-        }
-    }
-
-    //Check for player's chances
-    let rawDanger = [];
-    let colDanger = [];
-    
-    for(let x = 0; x < myBoard.length; x++) {
-        let raw = 0;
-        for(let y = 0; y < myBoard.length; y++) {
-            if(myBoard[x][y] === player) {
-                raw++;
-            }
-        }
-        rawDanger.push(raw);
-    };
-    for(let y = 0; y < myBoard.length; y++) {
-        let col = 0;
-        for(let x = 0; x < myBoard.length; x++) {
-            if(myBoard[x][y] === player) {
-                col++;
-            }
-        }
-        colDanger.push(col);
-    }
-
-    //Check for computer's chances
-    let myRaws = [];
-    let myCols = [];
-    for(let x = 0; x < myBoard.length; x++) {
-        let raw = 0;
-        for(let y = 0; y < myBoard.length; y++) {
-            if(myBoard[x][y] === computer) {
-                raw++;
-            }
-        }
-        myRaws.push(raw);
-    };
-    for(let y = 0; y < myBoard.length; y++) {
-        let col = 0;
-        for(let x = 0; x < myBoard.length; x++) {           
-            if(myBoard[x][y] === computer) {
-                col++;
-            }
-        }
-        myCols.push(col);
-    }
-
-    //Manage computer ATTACKS
-    let winX = myRaws.indexOf(2);
-    var xNb;
-    if(winX !== -1) {
-        xNb = winX;
-        for(let i = 0; i<myBoard.length; i++) {
-            if(myBoard[xNb][i] === ' ') {
-                return [xNb,i];
-            }
-        }
-    }
-
-    let winY = myCols.indexOf(2);
-    var yNb;
-    if(winY !== -1) {
-        yNb = winY;
-        for(let i = 0; i<myBoard.length; i++) {
-            if(myBoard[i][yNb] === ' ') {
-                return [i,yNb];
-            }
-        }
-    }
-
-    //Manage computer DEFENDS
-    let looseX = rawDanger.indexOf(2);
-    if(looseX !== -1) {
-        xNb = looseX;
-        for(let i = 0; i<myBoard.length; i++) {
-            if(myBoard[xNb][i] === ' ') {
-                return [xNb,i];
-            }
-        }
-    }
-    let looseY = colDanger.indexOf(2);
-    if(looseY !== -1) {
-        yNb = looseY;
-        for(let i = 0; i<myBoard.length; i++) {
-            if(myBoard[i][yNb] === ' ') {
-                return [i,yNb];
-            }
-        }
-    }
-
-    //If no-one is winning => randomPlay !!
-    let xRand = Math.round(Math.random() * 2);
-    let yRand = Math.round(Math.random() * 2);
-    return [xRand, yRand];
-} 
